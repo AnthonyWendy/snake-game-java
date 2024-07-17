@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class SnakeGame extends JPanel implements ActionListener, KeyListener {
@@ -17,7 +18,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
         Tile(int x, int y) {
             this.x = x;
-            this.y = x;
+            this.y = y;
         }
     }
 
@@ -30,6 +31,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
     // Snake
     Tile snakeHead;
+    ArrayList<Tile> snakeBody;
 
     // Fruit
     Tile food;
@@ -50,6 +52,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
         // Posição inicial da cabeça da cobra
         snakeHead = new Tile(5, 5);
+        snakeBody = new ArrayList<Tile>();
 
         // Posição inicial da fruta
         food = new Tile(10, 10);
@@ -59,7 +62,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         velocityX = 0;
         velocityY = 1;
 
-        gameLoop = new Timer(100, this);
+        gameLoop = new Timer(80, this);
         gameLoop.start();
     }
 
@@ -85,9 +88,15 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         g.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
 
 
-        //Snake
+        //Snake head
         g.setColor(Color.GREEN);
         g.fillRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize);
+
+        // Snake body
+        for (int i=0; i < snakeBody.size(); i++) {
+            Tile snakePart = snakeBody.get(i);
+            g.fillRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize);
+        }
     }
 
     // Responsável por criar a posição aleatória da fruta
@@ -96,8 +105,30 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         food.y = random.nextInt(boardHeight / tileSize);
     }
 
-    //
+    // Para saber se a Snake bateu na parede
+    public boolean collision(Tile tile1, Tile tile2) {
+        return tile1.x == tile2.x && tile1.y == tile2.y;
+    }
+
     public void move(){
+        //eat food
+        if (collision(snakeHead, food)) {
+            snakeBody.add(new Tile(food.x, food.y));
+            placeFood();
+        }
+
+        // Snale body
+        for (int i = snakeBody.size()-1; i >= 0; i--) {
+            Tile snakePart = snakeBody.get(i);
+            if (i == 0) {
+                snakePart.x = snakeHead.x;
+                snakePart.y = snakeHead.y;
+            } else {
+                snakePart.x = snakeBody.get(i-1).x;
+                snakePart.y = snakeBody.get(i-1).y;
+            }
+        }
+
         //Snake head
         snakeHead.x += velocityX;
         snakeHead.y += velocityY;
