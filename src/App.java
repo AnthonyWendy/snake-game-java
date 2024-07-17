@@ -14,9 +14,8 @@ public class App {
 
         // criacao do tabuleiro
         SnakeGame snakeGame = new SnakeGame(boardWidth, boardHeight);
-
-        // inserindo o tabuleiro na janela
         frame.add(snakeGame);
         frame.pack();
+        snakeGame.requestFocus();
     }
 }
