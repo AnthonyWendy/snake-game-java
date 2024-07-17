@@ -12,7 +12,7 @@ public class App {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // criacao do tabuleiro
+        // Criação do tabuleiro
         SnakeGame snakeGame = new SnakeGame(boardWidth, boardHeight);
         frame.add(snakeGame);
         frame.pack();

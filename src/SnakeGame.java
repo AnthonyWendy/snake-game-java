@@ -9,8 +9,6 @@ import java.util.Random;
 
 public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
-
-
     // posição dos blocos
     private class Tile {
         int x;
@@ -21,7 +19,6 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
             this.y = y;
         }
     }
-
 
     int boardWidth;
     int boardHeight;
@@ -67,8 +64,7 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         gameLoop.start();
     }
 
-    // Função para pintar na tabuleiro
-
+    // Função para pintar no tabuleiro
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
@@ -76,36 +72,28 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
 
     // função para desenhar no tabuleiro
     public void draw(Graphics g) {
-
-        // Grid
-        // for (int i = 0; i < boardWidth / tileSize; i++) { //  calcula quantas colunas de blocos de tamanho tileSize
-        //     // x1, y1, x2, y2
-        //     g.drawLine(i * tileSize, 0, i * tileSize, boardHeight); // Cria a linha vertical
-        //     g.drawLine(0, i * tileSize, boardWidth, i * tileSize); // Crua a linha Horizontal
-        // }
-
         // Fruit
         g.setColor(Color.RED);
         g.fill3DRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize, true);
 
-
-        //Snake head
+        // Snake head
         g.setColor(Color.GREEN);
         g.fill3DRect(snakeHead.x * tileSize, snakeHead.y * tileSize, tileSize, tileSize, true);
 
         // Snake body
-        for (int i=0; i < snakeBody.size(); i++) {
+        for (int i = 0; i < snakeBody.size(); i++) {
             Tile snakePart = snakeBody.get(i);
             g.fill3DRect(snakePart.x * tileSize, snakePart.y * tileSize, tileSize, tileSize, true);
         }
 
         // Score
-        g.setFont(new Font("Ariel", Font.PLAIN, 16));
+        g.setFont(new Font("Arial", Font.PLAIN, 16));
         if (gameOver) {
             g.setColor(Color.RED);
-            g.drawString("Game over: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+            g.drawString("Game Over: " + snakeBody.size(), tileSize, tileSize);
         } else {
-            g.drawString("Game over: " + String.valueOf(snakeBody.size()), tileSize - 16, tileSize);
+            g.setColor(Color.WHITE);
+            g.drawString("Score: " + snakeBody.size(), tileSize, tileSize);
         }
     }
 
@@ -115,55 +103,54 @@ public class SnakeGame extends JPanel implements ActionListener, KeyListener {
         food.y = random.nextInt(boardHeight / tileSize);
     }
 
-    // Para saber se a Snake bateu na parede
+    // Para saber se a Snake bateu na parede ou em si mesma
     public boolean collision(Tile tile1, Tile tile2) {
         return tile1.x == tile2.x && tile1.y == tile2.y;
     }
 
-    public void move(){
-        //eat food
+    public void move() {
+        // Come a fruta
         if (collision(snakeHead, food)) {
             snakeBody.add(new Tile(food.x, food.y));
             placeFood();
         }
 
-        // Snake body
-        for (int i = snakeBody.size()-1; i >= 0; i--) {
+        // Move o corpo da cobra
+        for (int i = snakeBody.size() - 1; i >= 0; i--) {
             Tile snakePart = snakeBody.get(i);
             if (i == 0) {
                 snakePart.x = snakeHead.x;
                 snakePart.y = snakeHead.y;
             } else {
-                snakePart.x = snakeBody.get(i-1).x;
-                snakePart.y = snakeBody.get(i-1).y;
+                snakePart.x = snakeBody.get(i - 1).x;
+                snakePart.y = snakeBody.get(i - 1).y;
             }
         }
 
-        //Snake head
+        // Move a cabeça da cobra
         snakeHead.x += velocityX;
         snakeHead.y += velocityY;
 
-        //game over conditions
+        // Verifica colisão com o corpo
         for (int i = 0; i < snakeBody.size(); i++) {
             Tile snakePart = snakeBody.get(i);
-
-            //colide with the snake head
             if (collision(snakeHead, snakePart)) {
                 gameOver = true;
             }
-            if (snakeHead.x*tileSize < 0 || snakeHead.x*tileSize > boardWidth ||
-                snakeHead.y*tileSize < 0 || snakeHead.y*tileSize > boardHeight) {
-                gameOver = true;
-            }
+        }
+
+        // Verifica colisão com as bordas do tabuleiro
+        if (snakeHead.x < 0 || snakeHead.x >= boardWidth / tileSize ||
+                snakeHead.y < 0 || snakeHead.y >= boardHeight / tileSize) {
+            gameOver = true;
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
-        repaint();
-        if (gameOver) {
-            gameLoop.stop();
+        if (!gameOver) {
+            move();
+            repaint();
         }
     }
 
